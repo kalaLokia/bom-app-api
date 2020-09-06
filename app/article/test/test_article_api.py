@@ -5,12 +5,22 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Article
+from core.models import Article, Color
 
-from article.serializers import ArticleSerializer
+from article.serializers import ArticleSerializer, ArticleDetailSerializer
 
 
 ARTICLE_URL = reverse('article:article-list')
+
+
+def detail_url(article_id):
+    """Return article detail url"""
+    return reverse('article:article-detail', args=[article_id])
+
+
+def sample_color(user, name='balck', code='bk'):
+    """Create and return a sample color"""
+    return Color.objects.create(user=user, name=name, code=code)
 
 
 def sample_article(user, **params):
@@ -61,3 +71,14 @@ class PrivateArticleApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_view_article_detail(self):
+        """Test viewing a article detail"""
+        article = sample_article(user=self.user)
+        article.colors.add(sample_color(user=self.user))
+
+        url =  detail_url(article.id)
+        res = self.client.get(url)
+        
+        serializer = ArticleDetailSerializer(article)
+        self.assertEqual(res.data, self.serializer.data)
