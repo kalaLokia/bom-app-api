@@ -53,7 +53,7 @@ class Color(models.Model):
 
 
 class Article(models.Model):
-    """Article model"""
+    """A simple article model"""
 
     STYLE_CHOICES = [
         ('v-strap', 'V-STRAP'),
@@ -80,8 +80,40 @@ class Article(models.Model):
         on_delete=models.DO_NOTHING,
     )
     artno = models.CharField(max_length=6, unique=True)
-    brand = models.CharField(max_length=25, choices=BRAND_CHOICES)
-    style = models.CharField(max_length=25, choices=STYLE_CHOICES)
+    brand = models.CharField(max_length=25, choices=BRAND_CHOICES, blank=True)
+    style = models.CharField(max_length=25, choices=STYLE_CHOICES, blank=True)
 
     def __str__(self):
         return self.artno
+
+
+class ArticleDetail(models.Model):
+    """
+    More detailed model of article. color, category wise informations.
+    """
+
+    CATEGORY_CHOICES = [
+        ('gents', 'Gents'),
+        ('ladies', 'Ladies'),
+        ('boys', 'Boys'),
+        ('kids', 'Kids'),
+        ('children', 'Children'),
+        ('giants', 'Giants'),
+        ('infant', 'Infant')
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING,
+    )
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    category = models.CharField(max_length=10)
+    price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    active = models.BooleanField(default=True)
+    art_id = models.CharField(max_length=12)
+    basic = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    export = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.art_id

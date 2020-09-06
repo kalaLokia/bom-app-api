@@ -72,3 +72,27 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(article), article.artno)
+
+    def test_article_detail_str(self):
+        """Test the article detail string representation"""
+        user = sample_user()
+        article = models.Article.objects.create(
+            user=user,
+            artno='3290'
+        )
+        color = models.Color.objects.create(
+            user=user,
+            name='black',
+            code='bk'
+        )
+        article_detail = models.ArticleDetail.objects.create(
+            user=user,
+            article=article,
+            color=color,
+            category='gents',
+            price=290.00,
+            active=True,
+            art_id='3290-bk-g'
+        )
+
+        self.assertEqual(str(article_detail), article_detail.art_id)
