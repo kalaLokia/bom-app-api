@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, \
                                         PermissionsMixin
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -35,3 +36,55 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+
+class Color(models.Model):
+    """Colors to be used for article"""
+    name = models.CharField(max_length=25, unique=True)
+    # use validators for 2 char limit for code
+    code = models.CharField(max_length=2, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING,
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Article(models.Model):
+    """Article model"""
+
+    STYLE_CHOICES = [
+        ('v-strap', 'V-STRAP'),
+        ('sandal', 'SANDAL'),
+        ('t-strap', 'T-STRAP'),
+        ('shoes', 'SHOES'),
+        ('', 'None')
+    ]
+    CATEGORY_CHOICES = [
+        ('g', 'Gents'),
+        ('l', 'Ladies'),
+        ('k', 'Kids'),
+        ('c', 'Children'),
+        ('b', 'Boys'),
+        ('r', 'Girls'),
+        ('x', 'Giants'),
+        ('', 'None')
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING,
+    )
+    artno = models.CharField(max_length=6, unique=True)
+    brand = models.CharField(max_length=25)
+    style = models.CharField(max_length=25,
+                             choices=STYLE_CHOICES, blank=True)
+    category = models.CharField(max_length=10,
+                                choices=CATEGORY_CHOICES, blank=True)
+    color = models.ManyToManyField('Color')
+    article_detail = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return self.artno

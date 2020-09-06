@@ -1,6 +1,13 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from core import models
+
+
+def sample_user(email='test@kalalokia.xyz', password='testpass'):
+    """Creates a sample user"""
+    return get_user_model().objects.create_user(email, password)
+
 
 class ModelTests(TestCase):
 
@@ -44,3 +51,24 @@ class ModelTests(TestCase):
         )
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
+
+    def test_color_str(self):
+        """Test the color string representation"""
+        color = models.Color.objects.create(
+            user=sample_user(),
+            name='black',
+            code='bk'
+        )
+
+        self.assertEqual(str(color), color.name)
+
+    def test_article_str(self):
+        """Test the article string representation"""
+        article = models.Article.objects.create(
+            user=sample_user(),
+            artno='3290',
+            brand='pride',
+            category='gents'
+        )
+
+        self.assertEqual(str(article), article.artno)
