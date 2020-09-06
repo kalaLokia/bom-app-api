@@ -36,3 +36,14 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Overriding get queryset to order by id"""
         return self.queryset.order_by('-id')
+
+    def perform_create(self, serializer):
+        """Create a new article"""
+        serializer.save(user=self.request.user)
+
+    # def get_serializer_class(self):
+    #     """Return appropriate serializer"""
+    #     if self.action == 'retrieve':
+    #         return serializers.ArticleDetailSerializer
+
+    #     return self.serializer_class

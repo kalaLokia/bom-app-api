@@ -5,22 +5,12 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Article, Color
+from core.models import Article
 
-from article.serializers import ArticleSerializer, ArticleDetailSerializer
+from article.serializers import ArticleSerializer
 
 
 ARTICLE_URL = reverse('article:article-list')
-
-
-def detail_url(article_id):
-    """Return article detail url"""
-    return reverse('article:article-detail', args=[article_id])
-
-
-def sample_color(user, name='balck', code='bk'):
-    """Create and return a sample color"""
-    return Color.objects.create(user=user, name=name, code=code)
 
 
 def sample_article(user, **params):
@@ -72,13 +62,30 @@ class PrivateArticleApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_view_article_detail(self):
-        """Test viewing a article detail"""
-        article = sample_article(user=self.user)
-        article.colors.add(sample_color(user=self.user))
+    def test_create_article_success(self):
+        """Test that creating a article is successful"""
+        payload = {'artno': '3780', 'brand': 'pride', 'style': 'covering'}
+        self.client.post(ARTICLE_URL, payload)
 
-        url =  detail_url(article.id)
-        res = self.client.get(url)
-        
-        serializer = ArticleDetailSerializer(article)
-        self.assertEqual(res.data, self.serializer.data)
+        exists = Article.objects.filter(
+            user=self.user,
+            artno=payload['artno']
+        ).exists()
+
+        self.assertTrue(exists)
+
+    def test_create_article_invalid(self):
+        """Test creating an article with invalid payload"""
+        payload = {'artno': '', 'brand': 'pride', 'style': 'sandal'}
+        res = self.client.post(ARTICLE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_duplicate_article_invalid(self):
+        """Test that creating article with same artno is invalid"""
+        sample_article(user=self.user, artno='3780')
+        payload = {'artno': '3780', 'brand': 'stile', 'style': 'covering'}
+
+        res = self.client.post(ARTICLE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

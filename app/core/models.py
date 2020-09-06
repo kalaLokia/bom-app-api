@@ -61,15 +61,17 @@ class Article(models.Model):
         ('t-strap', 'T-STRAP'),
         ('covering', 'COVERING'),
         ('shoes', 'SHOES'),
+        ('', 'None'),
     ]
-    CATEGORY_CHOICES = [
-        ('g', 'Gents'),
-        ('l', 'Ladies'),
-        ('k', 'Kids'),
-        ('c', 'Children'),
-        ('b', 'Boys'),
-        ('r', 'Girls'),
-        ('x', 'Giants'),
+    BRAND_CHOICES = [
+        ('pride', 'Pride'),
+        ('debongo', 'Debongo'),
+        ('smartak', 'Smartak'),
+        ('stile', 'Stile'),
+        ('lpride', 'L. Pride'),
+        ('disney', 'Disney'),
+        ('batman', 'Batman'),
+        ('kapers', 'Kapers'),
         ('', 'None'),
     ]
 
@@ -78,16 +80,8 @@ class Article(models.Model):
         on_delete=models.DO_NOTHING,
     )
     artno = models.CharField(max_length=6, unique=True)
-    # TODO make it choice field
-    brand = models.CharField(max_length=25)
-    style = models.CharField(max_length=25,
-                             choices=STYLE_CHOICES)
-    # TODO category to an array field
-    category = models.CharField(max_length=10,
-                                choices=CATEGORY_CHOICES, blank=True)
-    colors = models.ManyToManyField('Color')
-    # TODO article_detail => artno-color-category
-    article_detail = models.CharField(max_length=50, blank=True)
+    brand = models.CharField(max_length=25, choices=BRAND_CHOICES)
+    style = models.CharField(max_length=25, choices=STYLE_CHOICES)
 
     def __str__(self):
         return self.artno

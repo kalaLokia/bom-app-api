@@ -15,15 +15,7 @@ class ColorSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     """Serializer for the article objects"""
 
-    colors = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Color.objects.all()
-    )
-
     class Meta:
         model = Article
-        fields = (
-            'id', 'artno', 'brand', 'style', 'colors', 'category',
-            'article_detail'
-        )
+        fields = ('id', 'artno', 'brand', 'style')
         read_only_fields = ('id',)

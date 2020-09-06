@@ -68,7 +68,7 @@ class ModelTests(TestCase):
             user=sample_user(),
             artno='3290',
             brand='pride',
-            category='gents'
+            style='covering'
         )
 
         self.assertEqual(str(article), article.artno)
