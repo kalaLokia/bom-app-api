@@ -6,6 +6,7 @@ from article import views
 
 router = DefaultRouter()
 router.register('colors', views.ColorViewSet)
+router.register('articles', views.ArticleViewSet)
 
 app_name = 'article'
 

@@ -59,8 +59,8 @@ class Article(models.Model):
         ('v-strap', 'V-STRAP'),
         ('sandal', 'SANDAL'),
         ('t-strap', 'T-STRAP'),
+        ('covering', 'COVERING'),
         ('shoes', 'SHOES'),
-        ('', 'None')
     ]
     CATEGORY_CHOICES = [
         ('g', 'Gents'),
@@ -70,7 +70,7 @@ class Article(models.Model):
         ('b', 'Boys'),
         ('r', 'Girls'),
         ('x', 'Giants'),
-        ('', 'None')
+        ('', 'None'),
     ]
 
     user = models.ForeignKey(
@@ -78,12 +78,15 @@ class Article(models.Model):
         on_delete=models.DO_NOTHING,
     )
     artno = models.CharField(max_length=6, unique=True)
+    # TODO make it choice field
     brand = models.CharField(max_length=25)
     style = models.CharField(max_length=25,
-                             choices=STYLE_CHOICES, blank=True)
+                             choices=STYLE_CHOICES)
+    # TODO category to an array field
     category = models.CharField(max_length=10,
                                 choices=CATEGORY_CHOICES, blank=True)
-    color = models.ManyToManyField('Color')
+    colors = models.ManyToManyField('Color')
+    # TODO article_detail => artno-color-category
     article_detail = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
