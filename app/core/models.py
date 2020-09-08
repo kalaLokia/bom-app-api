@@ -106,14 +106,19 @@ class ArticleDetail(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.DO_NOTHING,
     )
-    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    article = models.ForeignKey(
+        Article,
+        related_name='details',
+        on_delete=models.CASCADE
+    )
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
+
     category = models.CharField(max_length=10)
+    artid = models.CharField(max_length=12, unique=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    active = models.BooleanField(default=True)
-    art_id = models.CharField(max_length=12)
     basic = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    active = models.BooleanField(default=True)
     export = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.art_id
+        return self.artid

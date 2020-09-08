@@ -92,7 +92,7 @@ class ModelTests(TestCase):
             category='gents',
             price=290.00,
             active=True,
-            art_id='3290-bk-g'
+            artid='3290-bk-g'
         )
 
-        self.assertEqual(str(article_detail), article_detail.art_id)
+        self.assertEqual(str(article_detail), article_detail.artid)
