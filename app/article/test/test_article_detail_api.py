@@ -45,12 +45,12 @@ def sample_article_detail(user, article, color, **params):
     defaults = {
         'article': article,
         'color': color,
-        'category': 'gents',
+        'category': 'g',
         'price': 270.00
     }
     defaults.update(params)
     artid = "{}-{}-{}".format(defaults['article'].artno,
-                              defaults['color'].code, defaults['category'][0])
+                              defaults['color'].code, defaults['category'])
     defaults.update({'artid': artid})
 
     return ArticleDetail.objects.create(user=user, **defaults)

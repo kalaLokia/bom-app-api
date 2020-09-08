@@ -89,7 +89,7 @@ class ModelTests(TestCase):
             user=user,
             article=article,
             color=color,
-            category='gents',
+            category='g',
             price=290.00,
             active=True,
             artid='3290-bk-g'

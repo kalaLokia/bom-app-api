@@ -93,13 +93,13 @@ class ArticleDetail(models.Model):
     """
 
     CATEGORY_CHOICES = [
-        ('gents', 'Gents'),
-        ('ladies', 'Ladies'),
-        ('boys', 'Boys'),
-        ('kids', 'Kids'),
-        ('children', 'Children'),
-        ('giants', 'Giants'),
-        ('infant', 'Infant')
+        ('g', 'Gents'),
+        ('l', 'Ladies'),
+        ('b', 'Boys'),
+        ('k', 'Kids'),
+        ('c', 'Children'),
+        ('x', 'Giants'),
+        ('i', 'Infant')
     ]
 
     user = models.ForeignKey(
@@ -113,7 +113,7 @@ class ArticleDetail(models.Model):
     )
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
 
-    category = models.CharField(max_length=10)
+    category = models.CharField(max_length=1)
     artid = models.CharField(max_length=12, unique=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     basic = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
