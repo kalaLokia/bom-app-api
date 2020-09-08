@@ -55,3 +55,7 @@ class ArticleDetailViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = ArticleDetail.objects.all()
     serializer_class = serializers.ArticleDetailSerializer
+
+    def perform_create(self, serializer):
+        """Create a new article in detail"""
+        serializer.save(user=self.request.user)

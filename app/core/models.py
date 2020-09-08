@@ -113,7 +113,7 @@ class ArticleDetail(models.Model):
     )
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
 
-    category = models.CharField(max_length=1)
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
     artid = models.CharField(max_length=12, unique=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     basic = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)

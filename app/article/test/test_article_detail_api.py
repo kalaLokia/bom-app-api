@@ -80,22 +80,23 @@ class PrivateArticleDetailApiTests(TestCase):
         )
         self.client.force_authenticate(self.user)
 
+        self.article_1 = sample_article(user=self.user)
+        self.article_2 = sample_article(user=self.user, artno='3780')
+        self.color_1 = sample_color(user=self.user)
+        self.color_2 = sample_color(user=self.user, code='br', name='brown')
+
     def test_retrieve_articles(self):
         """Test retrieving a list of articles"""
-        article_1 = sample_article(user=self.user)
-        article_2 = sample_article(user=self.user, artno='3780')
-        color_1 = sample_color(user=self.user)
-        color_2 = sample_color(user=self.user, code='br', name='brown')
 
         sample_article_detail(user=self.user,
-                              article=article_1,
-                              color=color_1)
+                              article=self.article_1,
+                              color=self.color_1)
         sample_article_detail(user=self.user,
-                              article=article_2,
-                              color=color_1)
+                              article=self.article_2,
+                              color=self.color_1)
         sample_article_detail(user=self.user,
-                              article=article_2,
-                              color=color_2)
+                              article=self.article_2,
+                              color=self.color_2)
 
         res = self.client.get(ARTICLE_DETAIL_URL)
 
@@ -105,3 +106,76 @@ class PrivateArticleDetailApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(len(res.data), 3)
+
+    def test_create_article_success(self):
+        """Test that creating article detail is successful"""
+        payload = {
+            'article': self.article_1.id,
+            'color': self.color_1.id,
+            'category': 'g',
+            'artid': '3290-bk-g'
+        }
+
+        res = self.client.post(ARTICLE_DETAIL_URL, payload)
+
+        exists = ArticleDetail.objects.filter(
+            user=self.user,
+            artid=payload['artid']
+        ).exists()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(exists)
+
+    def test_create_article_invalid_foreign_key(self):
+        """
+        The that creating article detail with invalid foreign key.
+        #1: model expecting id field from foreign model
+        #2: foreign models are mandatory fields
+        """
+        payload1 = {
+            'article': self.article_1,
+            'color': self.color_1,
+            'category': 'g',
+            'artid': '3290-bk-g'
+        }
+        payload2 = {
+            'article': self.article_1.id,
+            'category': 'g',
+            'artid': '3290-bk-g'
+        }
+        payload3 = {
+            'color': self.color_1.id,
+            'category': 'g',
+            'artid': '3290-bk-g'
+        }
+        res1 = self.client.post(ARTICLE_DETAIL_URL, payload1)
+
+        res2 = self.client.post(ARTICLE_DETAIL_URL, payload2)
+        res3 = self.client.post(ARTICLE_DETAIL_URL, payload3)
+
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res3.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_article_invalid(self):
+        """
+        Test creating article detail with invalid payload fails.
+        #1: without category field
+        #2: without artid 
+        """
+        payload1 = {
+            'article': self.article_1.id,
+            'color': self.color_1.id,
+            'artid': '3290-bk-g'
+        }
+        payload2 = {
+            'article': self.article_1.id,
+            'color': self.color_1.id,
+            'category': 'g'
+        }
+
+        res1 = self.client.post(ARTICLE_DETAIL_URL, payload1)
+        res2 = self.client.post(ARTICLE_DETAIL_URL, payload2)
+
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)

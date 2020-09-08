@@ -13,15 +13,27 @@ class ColorSerializer(serializers.ModelSerializer):
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
-    """Serializer for the detailed article objects"""
+    """
+    Serializer for the detailed article objects.
+    artid field is hidden from view
+    """
 
     class Meta:
         model = ArticleDetail
         fields = (
-                 'id', 'article', 'color', 'category',
-                 'price', 'active', 'artid', 'basic', 'export'
+                 'id', 'artid', 'article', 'color', 'category',
+                 'price', 'active', 'basic', 'export'
         )
         read_only_fields = ('id',)
+
+        # artid = serializers.SerializerMethodField('get_article_id')
+
+        # def get_article_id(self, obj):
+        #     """Getting article id from provided fields"""
+        #     artno = obj.article.artno
+        #     color = obj.color.code
+        #     category = obj.category
+        #     return f"{artno}-{color}-{category}"
 
 
 class ArticleSerializer(serializers.ModelSerializer):

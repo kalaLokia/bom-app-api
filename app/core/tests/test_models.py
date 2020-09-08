@@ -74,7 +74,10 @@ class ModelTests(TestCase):
         self.assertEqual(str(article), article.artno)
 
     def test_article_detail_str(self):
-        """Test the article detail string representation"""
+        """
+        Test the article detail string representation.
+        Requires a article, color item to exists.
+        """
         user = sample_user()
         article = models.Article.objects.create(
             user=user,
