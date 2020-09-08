@@ -161,21 +161,27 @@ class PrivateArticleDetailApiTests(TestCase):
         """
         Test creating article detail with invalid payload fails.
         #1: without category field
-        #2: without artid 
         """
         payload1 = {
             'article': self.article_1.id,
             'color': self.color_1.id,
-            'artid': '3290-bk-g'
         }
-        payload2 = {
+
+        res1 = self.client.post(ARTICLE_DETAIL_URL, payload1)
+
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_duplicate_fails(self):
+        """Test that creating article detail with duplicate artid fails"""
+        sample_article_detail(user=self.user,
+                              article=self.article_1,
+                              color=self.color_1)
+        payload = {
             'article': self.article_1.id,
             'color': self.color_1.id,
             'category': 'g'
         }
 
-        res1 = self.client.post(ARTICLE_DETAIL_URL, payload1)
-        res2 = self.client.post(ARTICLE_DETAIL_URL, payload2)
+        res = self.client.post(ARTICLE_DETAIL_URL, payload)
 
-        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

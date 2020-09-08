@@ -57,5 +57,17 @@ class ArticleDetailViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ArticleDetailSerializer
 
     def perform_create(self, serializer):
-        """Create a new article in detail"""
-        serializer.save(user=self.request.user)
+        """
+        Create a new article in detail.
+        assigns "created user", "arid" in the model where artid is unique
+        """
+
+        artno = serializer.validated_data.get('article')
+        color = serializer.validated_data.get('color').code
+        catgry = serializer.validated_data.get('category')
+        artid = "{}-{}-{}".format(artno, color, catgry)
+
+        serializer.save(
+            user=self.request.user,
+            artid=artid
+        )
