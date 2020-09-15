@@ -29,4 +29,4 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Color)
 admin.site.register(models.Article)
-admin.site.register(models.ArticleDetail)
+admin.site.register(models.ArticleInfo)

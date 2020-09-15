@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Color, Article, ArticleDetail
+from core.models import Color, Article, ArticleInfo
 
 from article import serializers
 
@@ -41,20 +41,20 @@ class ArticleViewSet(viewsets.ModelViewSet):
         """Create a new article"""
         serializer.save(user=self.request.user)
 
-    # def get_serializer_class(self):
-    #     """Return appropriate serializer"""
-    #     if self.action == 'retrieve':
-    #         return serializers.ArticleDetailSerializer
+    def get_serializer_class(self):
+        """Return appropriate serializer"""
+        if self.action == 'retrieve':
+            return serializers.ArticleDetailSerializer
 
-    #     return self.serializer_class
+        return self.serializer_class
 
 
-class ArticleDetailViewSet(viewsets.ModelViewSet):
-    """Manage article-details in the database"""
+class ArticleInfoViewSet(viewsets.ModelViewSet):
+    """Manage article info in the database"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = ArticleDetail.objects.all()
-    serializer_class = serializers.ArticleDetailSerializer
+    queryset = ArticleInfo.objects.all()
+    serializer_class = serializers.ArticleInfoSerializer
 
     def perform_create(self, serializer):
         """
@@ -71,3 +71,10 @@ class ArticleDetailViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             artid=artid
         )
+
+    def get_serializer_class(self):
+        """Return appropriate serializer class"""
+        if self.action == 'retrieve':
+            return serializers.ArticleInfoDetailSerializer
+
+        return self.serializer_class

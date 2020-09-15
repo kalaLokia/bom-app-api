@@ -88,7 +88,7 @@ class ModelTests(TestCase):
             name='black',
             code='bk'
         )
-        article_detail = models.ArticleDetail.objects.create(
+        article_detail = models.ArticleInfo.objects.create(
             user=user,
             article=article,
             color=color,

@@ -7,7 +7,7 @@ from article import views
 router = DefaultRouter()
 router.register('colors', views.ColorViewSet)
 router.register('articles', views.ArticleViewSet)
-router.register('details', views.ArticleDetailViewSet)
+router.register('info', views.ArticleInfoViewSet)
 
 app_name = 'article'
 

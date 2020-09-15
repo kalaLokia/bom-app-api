@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from core.models import Color, Article, ArticleDetail
+from core.models import Color, Article, ArticleInfo
 
 
 class ColorSerializer(serializers.ModelSerializer):
@@ -16,31 +16,42 @@ class ColorSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     """Serializer for the article objects"""
 
-    details = serializers.StringRelatedField(many=True)
+    items = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Article
-        fields = ('id', 'artno', 'brand', 'style', 'details')
-        read_only_fields = ('id',)
+        fields = ('id', 'artno', 'brand', 'style', 'items')
+        read_only_fields = ('id', 'items')
 
 
-class ArticleDetailSerializer(serializers.ModelSerializer):
+class ArticleInfoSerializer(serializers.ModelSerializer):
     """
-    Serializer for the detailed article objects.
+    Serializer for the article_info objects.
     Validator here used is determines the uniqueness of artid field,
     which is assigned from "perform_create" method in views
     """
 
     class Meta:
-        model = ArticleDetail
+        model = ArticleInfo
         fields = (
-                 'id', 'article', 'color', 'category',
+                 'id', 'artid', 'article', 'color', 'category',
                  'price', 'active', 'basic', 'export'
         )
-        read_only_fields = ('id',)
+        read_only_fields = ('id', 'artid')
         validators = [
             UniqueTogetherValidator(
-                queryset=ArticleDetail.objects.all(),
+                queryset=ArticleInfo.objects.all(),
                 fields=['article', 'color', 'category']
             )
         ]
+
+
+class ArticleInfoDetailSerializer(ArticleInfoSerializer):
+    """Serialize detailed view of article info"""
+    article = serializers.StringRelatedField(read_only=True)
+    color = serializers.StringRelatedField(read_only=True)
+
+
+class ArticleDetailSerializer(ArticleSerializer):
+    """Serialize detailed view of article"""
+    items = ArticleInfoDetailSerializer(many=True)

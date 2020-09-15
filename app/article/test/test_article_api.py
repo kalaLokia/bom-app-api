@@ -7,22 +7,17 @@ from rest_framework.test import APIClient
 
 from core.models import Article
 
-from article.serializers import ArticleSerializer
+from article.serializers import ArticleSerializer, ArticleDetailSerializer
+
+from . import samples
 
 
 ARTICLE_URL = reverse('article:article-list')
 
 
-def sample_article(user, **params):
-    """Create and return a sample article"""
-    defaults = {
-        'artno': '3290',
-        'brand': 'pride',
-        'style': 'covering'
-    }
-    defaults.update(params)
-
-    return Article.objects.create(user=user, **defaults)
+def detail_url(article_id):
+    """Returns the detail view of an article"""
+    return reverse('article:article-detail', args=[article_id])
 
 
 class PublicArticleApiTests(TestCase):
@@ -51,8 +46,8 @@ class PrivateArticleApiTests(TestCase):
 
     def test_retrieve_articles(self):
         """Test retrieving a list of articles"""
-        sample_article(user=self.user)
-        sample_article(user=self.user, artno='3780')
+        samples.article(user=self.user)
+        samples.article(user=self.user, artno='3780')
 
         res = self.client.get(ARTICLE_URL)
 
@@ -83,9 +78,23 @@ class PrivateArticleApiTests(TestCase):
 
     def test_create_duplicate_article_invalid(self):
         """Test that creating article with same artno is invalid"""
-        sample_article(user=self.user, artno='3780')
+        samples.article(user=self.user, artno='3780')
         payload = {'artno': '3780', 'brand': 'stile', 'style': 'covering'}
 
         res = self.client.post(ARTICLE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_view_article_detail(self):
+        """Test viewing article in detail"""
+        article = samples.article(user=self.user)
+        color = samples.color(user=self.user)
+        samples.article_info(user=self.user,
+                             article=article,
+                             color=color)
+
+        res = self.client.get(detail_url(article.id))
+
+        serializer = ArticleDetailSerializer(article)
+
+        self.assertEqual(res.data, serializer.data)

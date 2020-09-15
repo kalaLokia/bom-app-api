@@ -87,7 +87,7 @@ class Article(models.Model):
         return self.artno
 
 
-class ArticleDetail(models.Model):
+class ArticleInfo(models.Model):
     """
     More detailed model of article. color, category wise informations.
     """
@@ -108,7 +108,7 @@ class ArticleDetail(models.Model):
     )
     article = models.ForeignKey(
         Article,
-        related_name='details',
+        related_name='items',
         on_delete=models.CASCADE
     )
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
