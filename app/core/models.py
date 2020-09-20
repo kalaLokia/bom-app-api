@@ -38,6 +38,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
 
+class Category(models.TextChoices):
+    """
+    Category choices, enum model. Human-readable name is default,
+    (capitalized variable name)
+    """
+    GENTS = 'g'
+    LADIES = 'l'
+    GIANTS = 'x'
+    KIDS = 'k'
+    BOYS = 'b'
+    GIRLS = 'r'
+    CHILDREN = 'c'
+
+
 class Color(models.Model):
     """Colors to be used for article"""
     name = models.CharField(max_length=25, unique=True)
@@ -60,8 +74,7 @@ class Article(models.Model):
         ('sandal', 'SANDAL'),
         ('t-strap', 'T-STRAP'),
         ('covering', 'COVERING'),
-        ('shoes', 'SHOES'),
-        ('', 'None'),
+        ('shoes', 'SHOES')
     ]
     BRAND_CHOICES = [
         ('pride', 'Pride'),
@@ -71,8 +84,7 @@ class Article(models.Model):
         ('lpride', 'L. Pride'),
         ('disney', 'Disney'),
         ('batman', 'Batman'),
-        ('kapers', 'Kapers'),
-        ('', 'None'),
+        ('kapers', 'Kapers')
     ]
 
     user = models.ForeignKey(
@@ -92,16 +104,6 @@ class ArticleInfo(models.Model):
     More detailed model of article. color, category wise informations.
     """
 
-    CATEGORY_CHOICES = [
-        ('g', 'Gents'),
-        ('l', 'Ladies'),
-        ('b', 'Boys'),
-        ('k', 'Kids'),
-        ('c', 'Children'),
-        ('x', 'Giants'),
-        ('i', 'Infant')
-    ]
-
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.DO_NOTHING,
@@ -113,7 +115,7 @@ class ArticleInfo(models.Model):
     )
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
 
-    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
+    category = models.CharField(max_length=1, choices=Category.choices)
     artid = models.CharField(max_length=12, unique=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     basic = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
