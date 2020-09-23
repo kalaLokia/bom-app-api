@@ -36,7 +36,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     def _params_to_list(self, qs):
         """
-        Convert comma seperated string to list of strings.
+        Convert comma seperated string to a list of strings.
         Also make sure no trailing, leading spaces ;-)
         """
         return [string.strip() for string in qs.split(',')]
