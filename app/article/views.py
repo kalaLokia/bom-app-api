@@ -1,4 +1,4 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
@@ -7,9 +7,7 @@ from core.models import Color, Article, ArticleInfo
 from article import serializers
 
 
-class ColorViewSet(viewsets.GenericViewSet,
-                   mixins.ListModelMixin,
-                   mixins.CreateModelMixin):
+class ColorViewSet(viewsets.ModelViewSet):
     """Manage colors in the database"""
     authentication_classes = (TokenAuthentication,)
     # TODO make staff only access
@@ -62,10 +60,10 @@ class ArticleInfoViewSet(viewsets.ModelViewSet):
         assigns "created user", "arid" in the model where artid is unique
         """
 
-        artno = serializer.validated_data.get('article')
+        artno = serializer.validated_data.get('article').artno
         color = serializer.validated_data.get('color').code
         catgry = serializer.validated_data.get('category')
-        artid = "{}-{}-{}".format(artno, color, catgry)
+        artid = "-".join([artno, color, catgry])
 
         serializer.save(
             user=self.request.user,

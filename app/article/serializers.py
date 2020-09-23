@@ -23,6 +23,23 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = ('id', 'artno', 'brand', 'style', 'items')
         read_only_fields = ('id', 'items')
 
+    def update(self, instance, validated_data):
+        """
+        Update a article, also updates the artid if exists.
+        If artno number is new, artid in ArticleInfo will also be updated.
+        """
+        if str(instance) != validated_data['artno']:
+            article_infos = instance.items.all()
+            newartno = validated_data['artno']
+
+            for i in article_infos:
+                newartid = '-'.join([newartno] + str(i).split('-')[1:])
+                i.artid = newartid
+                i.save()
+
+        article = super().update(instance, validated_data)
+        return article
+
 
 class ArticleInfoSerializer(serializers.ModelSerializer):
     """
@@ -34,8 +51,8 @@ class ArticleInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleInfo
         fields = (
-                 'id', 'artid', 'article', 'color', 'category',
-                 'price', 'active', 'basic', 'export'
+            'id', 'artid', 'article', 'color', 'category',
+            'price', 'active', 'basic', 'export'
         )
         read_only_fields = ('id', 'artid')
         validators = [
@@ -44,6 +61,18 @@ class ArticleInfoSerializer(serializers.ModelSerializer):
                 fields=['article', 'color', 'category']
             )
         ]
+
+    def update(self, instance, validated_data):
+        """
+        Update ArticleInfo with updated artid
+        """
+        artno = validated_data['article'].artno
+        color = validated_data['color'].code
+        category = validated_data['category']
+        validated_data['artid'] = '-'.join([artno, color, category])
+
+        article_info = super().update(instance, validated_data)
+        return article_info
 
 
 class ArticleInfoDetailSerializer(ArticleInfoSerializer):

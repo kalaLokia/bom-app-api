@@ -78,14 +78,12 @@ class PrivateArticleinfoApiTests(TestCase):
             'article': self.article_1.id,
             'color': self.color_1.id,
             'category': 'g',
-            'artid': '3290-bk-g'
         }
 
         res = self.client.post(ARTICLE_INFO_URL, payload)
 
         exists = ArticleInfo.objects.filter(
             user=self.user,
-            artid=payload['artid']
         ).exists()
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
