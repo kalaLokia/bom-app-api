@@ -1,3 +1,6 @@
+"""
+Core models for the api
+"""
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, \
                                         PermissionsMixin
@@ -5,7 +8,7 @@ from django.conf import settings
 
 
 class UserManager(BaseUserManager):
-
+    """User manager for creating basic, super user"""
     def create_user(self, email, password=None, **extra_fields):
         """Creates and saves a new user"""
         if not email:

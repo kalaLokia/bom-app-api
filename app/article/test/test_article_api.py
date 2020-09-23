@@ -34,7 +34,7 @@ class PublicArticleApiTests(TestCase):
 
 
 class PrivateArticleApiTests(TestCase):
-    """test authenticated article api requests"""
+    """Test authenticated article api requests"""
 
     def setUp(self):
         self.client = APIClient()
@@ -89,12 +89,55 @@ class PrivateArticleApiTests(TestCase):
         """Test viewing article in detail"""
         article = samples.article(user=self.user)
         color = samples.color(user=self.user)
-        samples.article_info(user=self.user,
-                             article=article,
-                             color=color)
+        samples.article_info(
+            user=self.user, article=article, color=color
+        )
 
         res = self.client.get(detail_url(article.id))
-
         serializer = ArticleDetailSerializer(article)
 
         self.assertEqual(res.data, serializer.data)
+
+
+class FilterArticleApiTests(TestCase):
+    """Test filtering on article"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            'test@kalalokia.xyz',
+            'testpass'
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_filter_brand(self):
+        """Test filter article by brand"""
+        article1 = samples.article(user=self.user, brand='pride')
+        article2 = samples.article(
+            user=self.user, artno='6359', brand='stile'
+        )
+        article3 = samples.article(
+            user=self.user, artno='d4303', brand='debongo'
+        )
+        article4 = samples.article(
+            user=self.user, artno='8493', brand='pride'
+        )
+        article5 = samples.article(
+            user=self.user, artno='k6012', brand='')
+
+        res = self.client.get(
+            ARTICLE_URL,
+            {'brand': f'{article2.brand}, {article1.brand}'}
+        )
+
+        serializer1 = ArticleSerializer(article1)
+        serializer2 = ArticleSerializer(article2)
+        serializer3 = ArticleSerializer(article3)
+        serializer4 = ArticleSerializer(article4)
+        serializer5 = ArticleSerializer(article5)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+        self.assertIn(serializer4.data, res.data)
+        self.assertNotIn(serializer5.data, res.data)

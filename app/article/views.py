@@ -1,3 +1,6 @@
+"""
+Viewpoint of the api/article
+"""
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -31,9 +34,22 @@ class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
 
+    def _params_to_list(self, qs):
+        """
+        Convert comma seperated string to list of strings.
+        Also make sure no trailing, leading spaces ;-)
+        """
+        return [string.strip() for string in qs.split(',')]
+
     def get_queryset(self):
         """Overriding get queryset to order by id"""
-        return self.queryset.order_by('-id')
+        brands = self.request.query_params.get('brand')
+        queryset = self.queryset
+        if brands:
+            brand_names = self._params_to_list(brands)
+            queryset = queryset.filter(brand__in=brand_names)
+
+        return queryset.order_by('-id')
 
     def perform_create(self, serializer):
         """Create a new article"""
