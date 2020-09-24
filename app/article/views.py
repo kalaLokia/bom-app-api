@@ -44,10 +44,14 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Overriding get queryset to order by id"""
         brands = self.request.query_params.get('brand')
+        styles = self.request.query_params.get('style')
         queryset = self.queryset
         if brands:
             brand_names = self._params_to_list(brands)
             queryset = queryset.filter(brand__in=brand_names)
+        if styles:
+            style_names = self._params_to_list(styles)
+            queryset = queryset.filter(style__in=style_names)
 
         return queryset.order_by('-id')
 

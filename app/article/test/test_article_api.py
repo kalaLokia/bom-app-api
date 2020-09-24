@@ -141,3 +141,35 @@ class FilterArticleApiTests(TestCase):
         self.assertNotIn(serializer3.data, res.data)
         self.assertIn(serializer4.data, res.data)
         self.assertNotIn(serializer5.data, res.data)
+
+    def test_filter_style(self):
+        """Test filter article by style"""
+        article1 = samples.article(user=self.user, style='covering')
+        article2 = samples.article(
+            user=self.user, artno='3510', style='sandal'
+        )
+        article3 = samples.article(
+            user=self.user, artno='d4303', style='v-strap'
+        )
+        article4 = samples.article(
+            user=self.user, artno='8493', style='covering'
+        )
+        article5 = samples.article(
+            user=self.user, artno='k6012', style='')
+
+        res = self.client.get(
+            ARTICLE_URL,
+            {'style': f'{article2.style}, {article1.style}'}
+        )
+
+        serializer1 = ArticleSerializer(article1)
+        serializer2 = ArticleSerializer(article2)
+        serializer3 = ArticleSerializer(article3)
+        serializer4 = ArticleSerializer(article4)
+        serializer5 = ArticleSerializer(article5)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+        self.assertIn(serializer4.data, res.data)
+        self.assertNotIn(serializer5.data, res.data)
