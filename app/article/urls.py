@@ -1,3 +1,8 @@
+"""
+Url routing for the app: "article".
+main url: host/api/article/
+"""
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 

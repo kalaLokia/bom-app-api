@@ -1,3 +1,6 @@
+"""
+All Article model related tests are here.
+"""
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
@@ -21,7 +24,7 @@ def detail_url(article_id):
 
 
 class PublicArticleApiTests(TestCase):
-    """test unauthenticated article api access"""
+    """Test unauthenticated article api access"""
 
     def setUp(self):
         self.client = APIClient()
@@ -34,7 +37,14 @@ class PublicArticleApiTests(TestCase):
 
 
 class PrivateArticleApiTests(TestCase):
-    """Test authenticated article api requests"""
+    """
+    Test authenticated article api requests.
+        * Retrieving list of article objects.
+        * Creating a object is successful.
+            * Fails with invalid data.
+            * Fails with duplicated data (on unique fields).
+        * Getting detailed view of a object.
+    """
 
     def setUp(self):
         self.client = APIClient()
@@ -100,7 +110,13 @@ class PrivateArticleApiTests(TestCase):
 
 
 class FilterArticleApiTests(TestCase):
-    """Test filtering on article"""
+    """
+    Test filtering on Article model by:
+        * brand
+        * style
+        * color    (code) [related field]
+        * category (main category) [related field[]
+    """
 
     def setUp(self):
         self.client = APIClient()
@@ -173,3 +189,82 @@ class FilterArticleApiTests(TestCase):
         self.assertNotIn(serializer3.data, res.data)
         self.assertIn(serializer4.data, res.data)
         self.assertNotIn(serializer5.data, res.data)
+
+    def test_filter_color(self):
+        """Test filter article if the color is available"""
+
+        article1 = samples.article(user=self.user)
+        article2 = samples.article(
+            user=self.user, artno="d4303", brand="debongo"
+        )
+        article3 = samples.article(
+            user=self.user, artno="d4109", brand="debongo"
+        )
+        color1 = samples.color(user=self.user)
+        color2 = samples.color(user=self.user, name="grey", code="gy")
+        color3 = samples.color(user=self.user, name="orange", code="or")
+
+        samples.article_info(
+            user=self.user, article=article1, color=color1
+        )
+        samples.article_info(
+            user=self.user, article=article2, color=color1
+        )
+        samples.article_info(
+            user=self.user, article=article2, color=color2
+        )
+        samples.article_info(
+            user=self.user, article=article3, color=color3
+        )
+
+        res = self.client.get(ARTICLE_URL, {'color': f'{color1.code}'})
+
+        serializer1 = ArticleSerializer(article1)
+        serializer2 = ArticleSerializer(article2)
+        serializer3 = ArticleSerializer(article3)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_filter_category(self):
+        """Test filter article by main category"""
+
+        article1 = samples.article(user=self.user)
+        article2 = samples.article(user=self.user, artno="d4303")
+        article3 = samples.article(user=self.user, artno="k6012")
+        article4 = samples.article(user=self.user, artno="3844")
+        color = samples.color(user=self.user)
+
+        samples.article_info(
+            user=self.user, article=article1,
+            color=color, category='g'
+        )
+        samples.article_info(
+            user=self.user, article=article2,
+            color=color, category='g'
+        )
+        samples.article_info(
+            user=self.user, article=article2,
+            color=color, category='x'
+        )
+        samples.article_info(
+            user=self.user, article=article3,
+            color=color, category='k'
+        )
+        samples.article_info(
+            user=self.user, article=article4,
+            color=color, category='r'
+        )
+
+        res = self.client.get(ARTICLE_URL, {'category': 'kids, giants'})
+
+        serializer1 = ArticleSerializer(article1)
+        serializer2 = ArticleSerializer(article2)
+        serializer3 = ArticleSerializer(article3)
+        serializer4 = ArticleSerializer(article4)
+
+        self.assertNotIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertIn(serializer3.data, res.data)
+        self.assertIn(serializer4.data, res.data)

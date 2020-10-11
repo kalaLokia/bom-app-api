@@ -4,7 +4,7 @@ Serializers for api/article
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from core.models import Color, Article, ArticleInfo
+from core.models import Color, Article, ArticleInfo, categorize
 
 
 class ColorSerializer(serializers.ModelSerializer):
@@ -54,10 +54,10 @@ class ArticleInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleInfo
         fields = (
-            'id', 'artid', 'article', 'color', 'category',
+            'id', 'artid', 'article', 'color', 'category', 'mcategory',
             'price', 'active', 'basic', 'export'
         )
-        read_only_fields = ('id', 'artid')
+        read_only_fields = ('id', 'artid', 'mcategory')
         validators = [
             UniqueTogetherValidator(
                 queryset=ArticleInfo.objects.all(),
@@ -73,6 +73,7 @@ class ArticleInfoSerializer(serializers.ModelSerializer):
         color = validated_data['color'].code
         category = validated_data['category']
         validated_data['artid'] = '-'.join([artno, color, category])
+        validated_data['mcategory'] = categorize(value=category)
 
         article_info = super().update(instance, validated_data)
         return article_info

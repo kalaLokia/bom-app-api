@@ -55,6 +55,20 @@ class Category(models.TextChoices):
     CHILDREN = 'c'
 
 
+def categorize(value):
+    """ Main categories from category"""
+    categories = {
+        'g': 'gents',
+        'l': 'ladies',
+        'x': 'giants',
+        'c': 'kids',
+        'b': 'kids',
+        'r': 'kids',
+        'k': 'kids'
+    }
+    return categories.get(value, 'unknown')
+
+
 class Color(models.Model):
     """Colors to be used for article"""
     name = models.CharField(max_length=25, unique=True)
@@ -116,9 +130,10 @@ class ArticleInfo(models.Model):
         related_name='items',
         on_delete=models.CASCADE
     )
+    # TODO: articleid : full details of artid for filtering, search
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
-
     category = models.CharField(max_length=1, choices=Category.choices)
+    mcategory = models.CharField(max_length=10, default="unknown")
     artid = models.CharField(max_length=12, unique=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     basic = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)

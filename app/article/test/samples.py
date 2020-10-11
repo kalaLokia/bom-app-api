@@ -1,4 +1,8 @@
-from core.models import Article, Color, ArticleInfo
+"""
+A common module for creating Article, ArticleInfo, Color models.
+This applies to all "test" files that requires the above models.
+"""
+from core.models import Article, Color, ArticleInfo, categorize
 
 
 def article(user, **params):
@@ -24,21 +28,20 @@ def color(user, **params):
     return Color.objects.create(user=user, **defaults)
 
 
-def article_info(user, article, color, **params):
+def article_info(user, **params):
     """
-    Creates a sample article info, also accepts models
-    "article", "color" in params.
+    Creates a sample article info.
+    Required fields: "article", "color" in params.
     """
 
     defaults = {
-        'article': article,
-        'color': color,
         'category': 'g',
         'price': 270.00
     }
     defaults.update(params)
     artid = "{}-{}-{}".format(defaults['article'].artno,
                               defaults['color'].code, defaults['category'])
-    defaults.update({'artid': artid})
+    mcategory = categorize(defaults['category'])
+    defaults.update({'artid': artid, 'mcategory': mcategory})
 
     return ArticleInfo.objects.create(user=user, **defaults)
