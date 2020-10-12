@@ -19,7 +19,7 @@ ARTICLE_URL = reverse('article:article-list')
 
 
 def detail_url(article_id):
-    """Returns the detail view of an article"""
+    """Returns the detailed view of an article"""
     return reverse('article:article-detail', args=[article_id])
 
 

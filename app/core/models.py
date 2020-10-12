@@ -142,3 +142,55 @@ class ArticleInfo(models.Model):
 
     def __str__(self):
         return self.artid
+
+
+class StdUom(models.TextChoices):
+    """
+    Available Std Unit of Measurments
+    """
+    PAIR = 'pairs'
+    KILOGRAM = 'kilogram'
+    METER = 'meter'
+    NOS = 'nos'
+
+
+class Uom(models.TextChoices):
+    """
+    All Available Unit of Measurments
+    """
+    PAIR = 'pairs'
+    KILOGRAM = 'kilogram'
+    METER = 'meter'
+    CONE = 'cone'
+    ROLL = 'roll'
+    NOS = 'nos'
+    GRAM = 'gram'
+
+
+class Material(models.Model):
+    """
+    Materials model
+    """
+
+    CATEGORY_CHOICES = [
+        ('rexin', 'Rexin'),
+        ('component', 'Component'),
+        ('chemical', 'Chemical'),
+        ('packing', 'Packing')
+    ]
+
+    code = models.CharField(max_length=18, unique=True)
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=25, choices=CATEGORY_CHOICES,
+                                blank=True)
+    subcategory = models.CharField(max_length=25, blank=True)
+    uom = models.CharField(max_length=15, choices=StdUom.choices, blank=True)
+    purchaseuom = models.CharField(max_length=15, choices=Uom.choices,
+                                   blank=True)
+    # cf - Conversion Factor
+    cf = models.DecimalField(max_digits=12, decimal_places=4, default=1)
+    price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

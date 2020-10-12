@@ -4,6 +4,7 @@ Viewpoint of the api/article
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
 from django.http import Http404
 
 from core.models import Color, Article, ArticleInfo, categorize
@@ -108,7 +109,10 @@ class ArticleInfoViewSet(viewsets.ModelViewSet):
         # return False
 
     def get_queryset(self):
-        """Overriding get queryset method"""
+        """
+        Overriding get queryset method.
+        For returning queryset w.r.t queryparams passed in the url
+        """
         queryset = self.queryset
 
         articlenos = self.request.query_params.get('artno')
@@ -149,8 +153,8 @@ class ArticleInfoViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Create a new article in detail.
-        assigns "created user", "arid" in the model where artid is unique
+        Overriding perform_create #creates a model object,
+        to set values for "created user", "arid" in the model.
         """
 
         artno = serializer.validated_data.get('article').artno

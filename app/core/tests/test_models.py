@@ -1,3 +1,7 @@
+"""
+Test related models
+"""
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
@@ -10,6 +14,7 @@ def sample_user(email='test@kalalokia.xyz', password='testpass'):
 
 
 class ModelTests(TestCase):
+    """All models test for creating objects is success"""
 
     def test_creating_user_success(self):
         """Test creating a user with email and password is successful"""
@@ -99,3 +104,17 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(article_detail), article_detail.artid)
+
+    def test_material_str(self):
+        """Test material string representation"""
+        material = models.Material.objects.create(
+            code='5-co07-0002',
+            name='m40 black',
+            category='component',
+            uom='meter',
+            purchaseuom='cone',
+            cf=1500,
+            active=True
+        )
+
+        self.assertEqual(str(material), material.name)
