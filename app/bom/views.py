@@ -9,7 +9,7 @@ from django.http import Http404
 
 from core.models import Material
 
-from material import serializers
+from bom import serializers
 
 
 class MaterialViewSet(viewsets.ModelViewSet):

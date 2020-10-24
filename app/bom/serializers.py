@@ -1,5 +1,5 @@
 """
-Serializer for api/material
+Serializer for api/bom
 """
 from rest_framework import serializers
 

@@ -10,15 +10,15 @@ from rest_framework.test import APIClient
 
 from core.models import Material
 
-from material.serializers import MaterialSerializer
+from bom.serializers import MaterialSerializer
 
 
-MATERIAL_URL = reverse('material:material-list')
+MATERIAL_URL = reverse('bom:material-list')
 
 
 def detail_url(material_id):
     """Returns the detailed view of a material"""
-    return reverse('material:material-detail', args=[material_id])
+    return reverse('bom:material-detail', args=[material_id])
 
 
 def sample_material(**params):
