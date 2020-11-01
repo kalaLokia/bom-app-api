@@ -39,7 +39,7 @@ class PublicArticleinfoApiTests(TestCase):
 
 
 class PrivateArticleinfoApiTests(TestCase):
-    """Test authenticated article-info api requests."""
+    """Test authenticated normal user article-info api requests."""
 
     def setUp(self):
         self.client = APIClient()
@@ -76,8 +76,56 @@ class PrivateArticleinfoApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(len(res.data), 3)
 
-    def test_create_articleinfo_success(self):
-        """Test that creating article info is successful"""
+    def test_user_create_articleinfo_unsuccess(self):
+        """Test that creating article info is unsuccessful by normal user"""
+        payload = {
+            'article': self.article_1.id,
+            'color': self.color_1.id,
+            'category': 'g',
+        }
+
+        res = self.client.post(ARTICLE_INFO_URL, payload)
+
+        exists = ArticleInfo.objects.filter(
+            user=self.user,
+        ).exists()
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(exists)
+
+    def test_view_articleinfo_detail(self):
+        """Test viewing a article info in detail"""
+        articleinfo = samples.article_info(user=self.user,
+                                           article=self.article_1,
+                                           color=self.color_1)
+
+        url = detail_url(articleinfo.id)
+        res = self.client.get(url)
+
+        serializer = ArticleInfoDetailSerializer(articleinfo)
+
+        self.assertEqual(res.data, serializer.data)
+
+
+class ProtectedArticleinfoApiTests(TestCase):
+    """Test authenticated admin/staff user article-info api requests."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email='staff@kalalokia.xyz',
+            password='staffpass',
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+        self.article_1 = samples.article(user=self.user)
+        self.article_2 = samples.article(user=self.user, artno='3780')
+        self.color_1 = samples.color(user=self.user)
+        self.color_2 = samples.color(user=self.user, code='br', name='brown')
+
+    def test_staff_create_articleinfo_success(self):
+        """Test that creating article info is successful by admin/staff"""
         payload = {
             'article': self.article_1.id,
             'color': self.color_1.id,
@@ -152,19 +200,6 @@ class PrivateArticleinfoApiTests(TestCase):
         res = self.client.post(ARTICLE_INFO_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_view_articleinfo_detail(self):
-        """Test viewing a article info in detail"""
-        articleinfo = samples.article_info(user=self.user,
-                                           article=self.article_1,
-                                           color=self.color_1)
-
-        url = detail_url(articleinfo.id)
-        res = self.client.get(url)
-
-        serializer = ArticleInfoDetailSerializer(articleinfo)
-
-        self.assertEqual(res.data, serializer.data)
 
 
 class FilterArticleInfoApiTests(TestCase):

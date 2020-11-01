@@ -11,8 +11,10 @@ from article import views
 
 router = DefaultRouter()
 router.register('colors', views.ColorViewSet)
-router.register('list', views.ArticleViewSet)
+router.register('models', views.ArticleViewSet)
 router.register('articles', views.ArticleInfoViewSet)
+router.register('items', views.ArticlePublicViewSet,
+                basename='article-minimal')
 
 app_name = 'article'
 

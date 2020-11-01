@@ -88,3 +88,15 @@ class ArticleInfoDetailSerializer(ArticleInfoSerializer):
 class ArticleDetailSerializer(ArticleSerializer):
     """Serialize detailed view of article"""
     items = ArticleInfoDetailSerializer(many=True)
+
+
+class ArticlePublicSerializer(serializers.ModelSerializer):
+    """Serialize the public view of articles accessible anyone"""
+    article = serializers.StringRelatedField(read_only=True)
+    color = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = ArticleInfo
+        fields = (
+            'article', 'color', 'mcategory', 'price', 'active'
+        )

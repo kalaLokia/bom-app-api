@@ -41,6 +41,27 @@ class PrivateColorTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
+    def test_admin_access_required(self):
+        """Test that admin/staff account is required for retrieving colors"""
+        res = self.client.get(COLOR_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ProtectedColorApiTests(TestCase):
+    """
+    Test the authenticated admin/staff user color api requests
+    """
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='staff@kalalokia.xyz',
+            password='staffpass',
+            is_staff=True
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
     def test_retrieving_colors(self):
         """Test retrieving colors"""
         Color.objects.create(user=self.user, name='black', code='bk')

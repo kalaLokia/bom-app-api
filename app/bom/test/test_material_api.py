@@ -60,8 +60,8 @@ class PrivateMaterialApiTests(TestCase):
         )
         self.client.force_authenticate(self.user)
 
-    def test_retrieve_materials(self):
-        """Test retrieving a list of materials"""
+    def test_retrieve_material_success(self):
+        """Test retrieving a list of materials is success"""
         sample_material()
         sample_material(
             code='5-nl02-0002', name='Kashmirblack', category='rexin'
@@ -74,8 +74,50 @@ class PrivateMaterialApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_material_success(self):
-        """Test that creating a material is successful"""
+    def test_user_create_material_unsuccess(self):
+        """Test that creating a material is unsuccessful for normal user"""
+
+        payload = {
+            'code': '5-c09-0001',
+            'name': 'pvc pipe 7mm',
+            'category': 'component',
+            'uom': 'meter'
+        }
+        self.client.post(MATERIAL_URL, payload)
+
+        exists = Material.objects.filter(
+            code=payload['code'],
+            name=payload['name']
+        ).exists()
+
+        self.assertFalse(exists)
+
+    def test_view_material_detail(self):
+        """Test viewing material in detail #by id"""
+
+        material = sample_material()
+        res = self.client.get(detail_url(material.id))
+        serializer = MaterialSerializer(material)
+
+        self.assertEqual(res.data, serializer.data)
+
+
+class ProtectedMaterialApiTests(TestCase):
+    """
+    Test authenticated admin/staff material api requests
+        Create, update, delete access allowed
+    """
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email='staff@kalalokia.xyz',
+            password='staffpass',
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_staff_create_material_success(self):
+        """Test that creating a material is successful for admin/staff user"""
 
         payload = {
             'code': '5-c09-0001',
@@ -101,19 +143,10 @@ class PrivateMaterialApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_view_material_detail(self):
-        """Test viewing material in detail #by id"""
-
-        material = sample_material()
-        res = self.client.get(detail_url(material.id))
-        serializer = MaterialSerializer(material)
-
-        self.assertEqual(res.data, serializer.data)
-
 
 class FilterMaterialApiTest(TestCase):
     """
-    Test filtering on Material model:
+    Test filtering on Material model: (For authenticated users)
         * code       - contains
         * name       - contains
         * category   -

@@ -1,9 +1,9 @@
 """
 Viewpoint of the api/article
 """
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
 from django.http import Http404
 
@@ -12,12 +12,10 @@ from core.models import Color, Article, ArticleInfo, categorize
 from article import serializers
 
 
-# TODO make staff only access for writting
-
 class ColorViewSet(viewsets.ModelViewSet):
     """Manage colors in the database"""
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAdminUser,)
     queryset = Color.objects.all()
     serializer_class = serializers.ColorSerializer
 
@@ -33,7 +31,7 @@ class ColorViewSet(viewsets.ModelViewSet):
 class ArticleViewSet(viewsets.ModelViewSet):
     """Manage articles in the database"""
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
 
@@ -43,6 +41,16 @@ class ArticleViewSet(viewsets.ModelViewSet):
         Also make sure no trailing, leading spaces ;-)
         """
         return [string.strip().lower() for string in qs.split(',')]
+
+    def get_permissions(self):
+        """
+        Setting permissions for the List, Retrieve, Create & Update
+        """
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated, ]
+        else:
+            permission_classes = [IsAdminUser, ]
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         """Overriding get queryset to order by id"""
@@ -83,7 +91,6 @@ class ArticleViewSet(viewsets.ModelViewSet):
 class ArticleInfoViewSet(viewsets.ModelViewSet):
     """Manage article info in the database"""
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
     queryset = ArticleInfo.objects.all()
     serializer_class = serializers.ArticleInfoSerializer
 
@@ -107,6 +114,16 @@ class ArticleInfoViewSet(viewsets.ModelViewSet):
         else:
             raise Http404("Something went wrong")
         # return False
+
+    def get_permissions(self):
+        """
+        Setting permissions for the List, Retrieve, Create & Update
+        """
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated, ]
+        else:
+            permission_classes = [IsAdminUser, ]
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         """
@@ -174,3 +191,10 @@ class ArticleInfoViewSet(viewsets.ModelViewSet):
             return serializers.ArticleInfoDetailSerializer
 
         return self.serializer_class
+
+
+class ArticlePublicViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    """Manage article info in the database"""
+    permission_classes = (AllowAny, )
+    queryset = ArticleInfo.objects.all()
+    serializer_class = serializers.ArticlePublicSerializer

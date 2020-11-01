@@ -40,9 +40,7 @@ class PrivateArticleApiTests(TestCase):
     """
     Test authenticated article api requests.
         * Retrieving list of article objects.
-        * Creating a object is successful.
-            * Fails with invalid data.
-            * Fails with duplicated data (on unique fields).
+        * Creating article object fails
         * Getting detailed view of a object.
     """
 
@@ -52,6 +50,7 @@ class PrivateArticleApiTests(TestCase):
             'test@kalalokia.xyz',
             'testpass'
         )
+
         self.client.force_authenticate(self.user)
 
     def test_retrieve_articles(self):
@@ -67,8 +66,52 @@ class PrivateArticleApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_article_success(self):
-        """Test that creating a article is successful"""
+    def test_user_create_article_unsuccess(self):
+        """Test that creating a article is unsuccessful by normal user"""
+        payload = {'artno': '3780', 'brand': 'pride', 'style': 'covering'}
+        res = self.client.post(ARTICLE_URL, payload)
+
+        exists = Article.objects.filter(
+            user=self.user,
+            artno=payload['artno']
+        ).exists()
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(exists)
+
+    def test_view_article_detail(self):
+        """Test viewing article in detail"""
+        article = samples.article(user=self.user)
+        color = samples.color(user=self.user)
+        samples.article_info(
+            user=self.user, article=article, color=color
+        )
+
+        res = self.client.get(detail_url(article.id))
+        serializer = ArticleDetailSerializer(article)
+
+        self.assertEqual(res.data, serializer.data)
+
+
+class ProtectedArticleApiTests(TestCase):
+    """
+    Test authenticated admin/staff user article api requests.
+        * Creating a object is successful.
+            * Fails with invalid data.
+            * Fails with duplicated data (on unique fields).
+    """
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email='test@kalalokia.xyz',
+            password='testpass',
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_staff_create_article_success(self):
+        """Test that creating a article by admin/staff is successful"""
         payload = {'artno': '3780', 'brand': 'pride', 'style': 'covering'}
         self.client.post(ARTICLE_URL, payload)
 
@@ -94,19 +137,6 @@ class PrivateArticleApiTests(TestCase):
         res = self.client.post(ARTICLE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_view_article_detail(self):
-        """Test viewing article in detail"""
-        article = samples.article(user=self.user)
-        color = samples.color(user=self.user)
-        samples.article_info(
-            user=self.user, article=article, color=color
-        )
-
-        res = self.client.get(detail_url(article.id))
-        serializer = ArticleDetailSerializer(article)
-
-        self.assertEqual(res.data, serializer.data)
 
 
 class FilterArticleApiTests(TestCase):

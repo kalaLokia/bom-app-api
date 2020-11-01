@@ -3,7 +3,7 @@ Viewpoint of api/material
 """
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from django.http import Http404
 
@@ -15,9 +15,18 @@ from bom import serializers
 class MaterialViewSet(viewsets.ModelViewSet):
     """Manage materials in the databse"""
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
     queryset = Material.objects.all()
     serializer_class = serializers.MaterialSerializer
+
+    def get_permissions(self):
+        """
+        Setting permissions for the List, Retrieve, Create & Update
+        """
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
     def _params_to_list(self, qs):
         """

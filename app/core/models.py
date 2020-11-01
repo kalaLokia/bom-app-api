@@ -144,16 +144,6 @@ class ArticleInfo(models.Model):
         return self.artid
 
 
-class StdUom(models.TextChoices):
-    """
-    Available Std Unit of Measurments
-    """
-    PAIR = 'pairs'
-    KILOGRAM = 'kilogram'
-    METER = 'meter'
-    NOS = 'nos'
-
-
 class Uom(models.TextChoices):
     """
     All Available Unit of Measurments
@@ -184,7 +174,7 @@ class Material(models.Model):
     category = models.CharField(max_length=25, choices=CATEGORY_CHOICES,
                                 blank=True)
     subcategory = models.CharField(max_length=25, blank=True)
-    uom = models.CharField(max_length=15, choices=StdUom.choices, blank=True)
+    uom = models.CharField(max_length=15, choices=Uom.choices, blank=True)
     purchaseuom = models.CharField(max_length=15, choices=Uom.choices,
                                    blank=True)
     # cf - Conversion Factor
